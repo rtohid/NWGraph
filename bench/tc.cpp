@@ -37,6 +37,11 @@ static constexpr const char USAGE[] =
       -V, --verbose         run in verbose mode
 )";
 
+
+// #if NWGRAPH_USE_HPX
+#include <hpx/hpx_main.hpp>
+// #endif
+
 #include "nwgraph/adjacency.hpp"
 #include "nwgraph/edge_list.hpp"
 #include "nwgraph/volos.hpp"

@@ -27,7 +27,9 @@ target_compile_features(nwgraph INTERFACE cxx_std_20)
 add_library(nw::graph ALIAS nwgraph)
 
 # make sure we have the right include path
-target_include_directories(nwgraph INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+message("<<<<<<<<<<<<<< ${HPX_INCLUDE_PATH} >>>>>>>>>>>>")
+message("<<<<<<<<<<<<<< ${HPX_DIR}/../../../include >>>>>>>>>>>>")
+target_include_directories(nwgraph INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>  ${HPX_DIR}/../../../include)
 
 # Extend this as needed.
 target_sources(nwgraph

@@ -37,18 +37,20 @@
 namespace nw::graph {
 namespace bench {
 
-constexpr inline bool WITH_TBB = true;
+constexpr inline bool WITH_THREADING = true;
 
 auto set_n_threads(long n) {
-  if constexpr (WITH_TBB) {
+#if NWGRAPH_USE_TBB
     return tbb::global_control(tbb::global_control::max_allowed_parallelism, n);
-  } else {
+#elif NWGRAPH_USE_HPX
+    return hpx::get_num_worker_threads();
+#else
     return 0;
-  }
+#endif
 }
 
 long get_n_threads() {
-  if constexpr (WITH_TBB) {
+  if constexpr (WITH_THREADING) {
     return tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism);
   } else {
     return 1;
@@ -57,7 +59,7 @@ long get_n_threads() {
 
 std::vector<long> parse_n_threads(const std::vector<std::string>& args) {
   std::vector<long> threads;
-  if constexpr (WITH_TBB) {
+  if constexpr (WITH_THREADING) {
     if (args.size() == 0) {
       threads.push_back(tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism));
     } else {

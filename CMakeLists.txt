@@ -87,6 +87,12 @@ if (NWGRAPH_SANITIZE)
   set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=${NWGRAPH_SANITIZE}")
 endif (NWGRAPH_SANITIZE)
 
+option(NWGRAPH_USE_TBB "Use TBB for parallelization" ON)
+option(NWGRAPH_USE_HPX "Use HPX for parallelization" ON)
+# if(NWGRAPH_USE_TBB AND NWGRAPH_USE_HPX)
+#   message(FATAL "Can only enable one, TBB or HPX as parallelization backend")
+# endif()
+
 option(NWGRAPH_BUILD_APBS "Determines whether to build abstraction penalty benchmarks." OFF)
 option(NWGRAPH_BUILD_BENCH "Determines whether to build performance benchmarks." OFF)
 # option(NWGRAPH_BUILD_DOCS "Determines whether to build documentation." OFF)
@@ -116,6 +122,8 @@ if(NWGRAPH_FETCH_TBB)
 
 # include(FetchContent)
 
+if (NWGRAPH_USE_TBB)
+
 # Use fetch content rather than as a submodule
 include(FetchContent)
 FetchContent_Declare(
@@ -126,11 +134,27 @@ FetchContent_Declare(
 message(STATUS "Fetching TBB")
 
 FetchContent_MakeAvailable(oneTBB)
+elseif (NWGRAPH_USE_HPX)
+  FetchContent_Declare(
+  HPX
+  GIT_REPOSITORY https://github.com/STEllAR-GROUP/hpx.git
+  #  GIT_TAG 1.8.1
+  )
+  message(STATUS "Fetching HPX")
+
+  FetchContent_MakeAvailable(HPX)
+endif()
 
 else()
 
 # add_subdirectory(external/oneTBB)
+# if (NWGRAPH_USE_TBB)
+#   find_package(TBB REQUIRED)
+# elseif (NWGRAPH_USE_HPX)
+# endif()
 find_package(TBB REQUIRED)
+find_package(HPX REQUIRED)
+include_directories("${HPX_DIR}")
 
 endif()
 
@@ -142,14 +166,19 @@ endif()
 #     TBB_STUFF)
 # endif()
 
-find_package(Threads REQUIRED)
-
-add_library(nwgraph_tbb INTERFACE)
-target_compile_definitions(nwgraph_tbb INTERFACE EXECUTION_POLICY)
-target_link_libraries(nwgraph_tbb INTERFACE TBB::tbb Threads::Threads)
-if (NWGRAPH_USE_TBBMALLOC)
-  target_link_libraries(nwgraph_tbb INTERFACE TBB::tbbmalloc) 
-endif ()
+if(NWGRAPH_USE_TBB)
+  find_package(Threads REQUIRED)
+  add_library(nwgraph_tbb INTERFACE)
+  target_compile_definitions(nwgraph_tbb INTERFACE EXECUTION_POLICY)
+  target_link_libraries(nwgraph_tbb INTERFACE TBB::tbb Threads::Threads)
+  if (NWGRAPH_USE_TBBMALLOC)
+    target_link_libraries(nwgraph_tbb INTERFACE TBB::tbbmalloc) 
+  endif ()
+elseif(NWGRAPH_USE_HPX)  
+    add_library(nwgraph_hpx INTERFACE)
+    target_compile_definitions(nwgraph_hpx INTERFACE EXECUTION_POLICY NWGRAPH_USE_HPX)
+    target_link_libraries(nwgraph_hpx INTERFACE HPX::hpx)
+endif()
 
 include(Docopt)
 

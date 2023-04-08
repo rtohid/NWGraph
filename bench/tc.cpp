@@ -37,6 +37,10 @@ static constexpr const char USAGE[] =
       -V, --verbose         run in verbose mode
 )";
 
+#if NWGRAPH_HAVE_HPX
+#include <hpx/hpx_main.hpp>
+#endif
+
 #include "nwgraph/adjacency.hpp"
 #include "nwgraph/edge_list.hpp"
 #include "nwgraph/volos.hpp"
@@ -325,7 +329,10 @@ void run_bench(int argc, char* argv[]) {
                             {"elapsed", time},
                             {"elapsed+relabel", time + relabel_time},
                             {"triangles", triangles}};
-
+#if(NWGRAPH_HAVE_HPX)
+  std::cout << "<<<<<<<<<<< HPX >>>>>>>>>>>" << std::endl;
+  triangles+=1
+#endif 
           if (verify && triangles != v_triangles) {
             std::cerr << "Inconsistent results: v" << id << " failed verification for " << file << " using " << thread << " threads (reported "
                       << triangles << ")\n";

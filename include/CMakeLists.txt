@@ -18,8 +18,20 @@
 # @note
 
 add_library(nwgraph INTERFACE)
+find_package(HPX REQUIRED)
 if(NWGRAPH_USE_TBB)
   target_link_libraries(nwgraph INTERFACE nwgraph_tbb)
+  #   set(THREADS_PREFER_PTHREAD_FLAG ON)
+  #   find_package(TBB REQUIRED)
+  #   find_package(Threads REQUIRED)
+  #   target_compile_definitions(nwgraph INTERFACE EXECUTION_POLICY NWGRAPH_USE_TBB)
+  #   target_link_libraries(nwgraph INTERFACE TBB::tbb Threads::Threads)
+  #   if (NWGRAPH_USE_TBBMALLOC)
+  #     target_link_libraries(nwgraph INTERFACE TBB::tbbmalloc)
+  #   endif ()
+elseif(NWGRAPH_USE_HPX)
+  target_compile_definitions(nwgraph INTERFACE NWGRAPH_USE_HPX)
+  target_link_libraries(nwgraph INTERFACE HPX::hpx HPX::wrap_main)
 endif()
 
 # Require C++20
@@ -96,21 +108,6 @@ target_sources(nwgraph
   nwgraph/csr.hpp
   nwgraph/csc.hpp
   nwgraph/coo.hpp)
-
-if(NWGRAPH_USE_TBB)
-#   set(THREADS_PREFER_PTHREAD_FLAG ON)
-#   find_package(TBB REQUIRED)
-#   find_package(Threads REQUIRED)
-#   target_compile_definitions(nwgraph INTERFACE EXECUTION_POLICY NWGRAPH_USE_TBB)
-#   target_link_libraries(nwgraph INTERFACE TBB::tbb Threads::Threads)
-#   if (NWGRAPH_USE_TBBMALLOC)
-#     target_link_libraries(nwgraph INTERFACE TBB::tbbmalloc)
-#   endif ()
-elseif(NWGRAPH_USE_HPX)
-  find_package(HPX REQUIRED)
-  target_compile_definitions(nwgraph INTERFACE NWGRAPH_USE_HPX)
-  target_link_libraries(nwgraph INTERFACE HPX::hpx HPX::wrap_main)
-endif()
 
 
 # -----------------------------------------------------------------------------

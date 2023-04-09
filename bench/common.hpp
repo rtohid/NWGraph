@@ -33,6 +33,11 @@
 #if NWGRAPH_HAVE_TBB
 #include <tbb/global_control.h>
 #endif
+#if NWGRAPH_HAVE_HPX
+#include <hpx/parallel/container_algorithms/for_each.hpp>
+#include <hpx/parallel/container_algorithms/transform_reduce.hpp>
+#endif
+
 #include <tuple>
 #include <vector>
 
@@ -78,7 +83,7 @@ std::vector<long> parse_n_threads(const std::vector<std::string>& args) {
     else 
     {
       for (auto&& n : args) {
-        threads.push_back(hpx::get_num_worker_threads());
+        threads.push_back(std::stol(n));
       }
     }
 #else
@@ -136,7 +141,7 @@ auto build_degrees(const Graph& graph) {
 #elif NWGRAPH_HAVE_HPX
   hpx::ranges::for_each(hpx::execution::par, edge_range(graph), [&](auto&& edges){
     for (auto&& [i,j] : edges){
-      nw::graph::fetch_add(&degrees[j], 1);
+      __atomic_fetch_add(&degrees[j], 1, __ATOMIC_ACQ_REL);
     }
   });
 #endif

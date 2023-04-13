@@ -156,7 +156,7 @@ else()
 
 endif()
 
-# find_package(TBB REQUIRED)
+find_package(TBB REQUIRED)
 
 # find_package(TBB)
 # if (not TBB_Found)
@@ -176,7 +176,7 @@ if(NWGRAPH_USE_TBB)
 elseif(NWGRAPH_USE_HPX)  
   add_library(nwgraph_hpx INTERFACE)
   target_compile_definitions(nwgraph_hpx INTERFACE EXECUTION_POLICY NWGRAPH_HAVE_HPX)
-  target_link_libraries(nwgraph_hpx INTERFACE HPX::hpx)
+  target_link_libraries(nwgraph_hpx INTERFACE HPX::hpx TBB::tbb)
 endif()
 
 include(Docopt)
